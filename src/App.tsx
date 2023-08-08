@@ -1,25 +1,40 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Layout from "./layout";
+import {createTheme, ThemeProvider} from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import {Routes, Route} from "react-router-dom";
+import NotFoundPage from "./pages/NotFoundPage";
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
+import CircularProgress from '@mui/material/CircularProgress';
+
+const CompanyDetails = React.lazy(() => import("./pages/CompanyDetails"));
+const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+const defaultTheme = createTheme();
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={defaultTheme}>
+      <CssBaseline/>
+      <QueryClientProvider client={queryClient}>
+        <Layout>
+          <Routes>
+            <Route path="/" element={
+              <React.Suspense fallback={<CircularProgress />}>
+              <Dashboard/>
+              </React.Suspense>
+            }>
+              <Route path="*" errorElement={<NotFoundPage/>}/>
+            </Route>
+            <Route path="companyDetails/:companySymbol" element={
+              <React.Suspense fallback={<CircularProgress />}>
+                <CompanyDetails/>
+              </React.Suspense>
+            }/>
+          </Routes>
+        </Layout>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
